@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Router IP</title>
+  <style>
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .box {
+      border: 1px solid #0f0;
+      padding: 25px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    #ip {
+      font-size: 2rem;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Router private IP</h2>
+    <div id="ip">Detecting...</div>
+  </div>
+
+  <script>
+    /*
+     * A normal browser cannot directly read Android/Termux's
+     * routing table. The browser therefore asks a local Termux
+     * HTTP endpoint for the default gateway.
+     */
+
+    async function findRouter() {
+      const output = document.getElementById("ip");
+
+      try {
+        const response = await fetch("http://127.0.0.1:8765/router", {
+          cache: "no-store"
+        });
+
+        if (!response.ok)
+          throw new Error("Termux endpoint unavailable");
+
+        const data = await response.json();
+
+        output.textContent =
+          data.gateway || "Router IP not found";
+      } catch (error) {
+        output.textContent =
+          "Start the Termux helper on port 8765";
+        console.error(error);
+      }
+    }
+
+    findRouter();
+  </script>
+</body>
+</html>
